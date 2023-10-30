@@ -1,0 +1,35 @@
+import { debounce } from 'lodash';
+
+const FindNote = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const { data = [], isLoading, isError, error } = useQuery({
+    queryKey: ['notes', { search: searchTerm }],
+    queryFn: () => searchNotes(searchTerm),
+    enabled: !!searchTerm
+  });
+
+  const handleSearch = debounce((value) => {
+    setSearchTerm(value);
+  }, 500);
+
+  return (
+    <div className='find-note-container'>
+      <input type='text' placeholder='Search notes' value={searchTerm} onChange={(e) => handleSearch(e.target.value)} />
+      <div className='search-results-container'>
+        {isLoading ? (
+          <LoadingBlock />
+        ) : (
+          <>
+            {data.map((note) => (
+              <Note key={note.id} note={note} />
+            ))}
+          </>
+        )}
+        {isError && <ErrorBlock message={error.message} />}
+      </div>
+    </div>
+  );
+};
+
+export default FindNote;

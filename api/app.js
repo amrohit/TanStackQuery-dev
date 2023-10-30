@@ -12,7 +12,24 @@ app.use(express.json());
 // const notes = path.join(__dirname, 'notes.json';
 
 app.get('/notes', (req, res) => {
-  res.sendFile(path.join(__dirname, 'notes.json'));
+  const { query } = req.query;
+  readFile(path.join(__dirname, 'notes.json'), (err, data) => {
+    if (err) {
+      res.status(500).send('Error reading file');
+      return;
+    }
+    const notes = data;
+    if (query) {
+      const filteredNotes = notes.filter(
+        (note) =>
+          note.title.toLowerCase().includes(query.toLowerCase()) ||
+          note.description.toLowerCase().includes(query.toLowerCase())
+      );
+      res.send(filteredNotes);
+    } else {
+      res.send(notes);
+    }
+  });
 });
 
 app.get('/search', (req, res) => {
